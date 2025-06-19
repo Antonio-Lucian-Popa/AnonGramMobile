@@ -65,7 +65,7 @@ export default function HomeScreen() {
       
       <FlatList
         data={posts}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <PostCard post={item} />}
         contentContainerStyle={styles.listContent}
         refreshControl={

@@ -135,14 +135,18 @@ class ApiClient {
     const token = await AsyncStorage.getItem("access_token");
     console.log("POST FormData Token:", token);
 
+    const headers = {
+        Authorization: token ? `Bearer ${token}` : "",
+        'Content-Type': 'multipart/form-data',
+        ...options.headers, // FĂRĂ Content-Type!!!
+      };
+
+      console.log("POST FormData Final Headers:", headers);
+
     return await fetch(url, {
       method: "POST",
       body: formData,
-      headers: {
-        Authorization: token ? `Bearer ${token}` : "",
-        ...options.headers, // FĂRĂ Content-Type!!!
-      },
-      
+      headers: headers,
     });
   };
 
