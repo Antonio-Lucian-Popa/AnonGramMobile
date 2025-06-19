@@ -2,10 +2,10 @@ import { Filter, MapPin, Search, Tag, X } from "lucide-react-native";
 import React, { useState } from "react";
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+import Input from "@/components/Input";
 import { colors } from "@/constants/Colors";
 import { PostFilters } from "@/types";
 import Button from "./Button";
-import Input from "./input";
 
 
 interface FilterBarProps {

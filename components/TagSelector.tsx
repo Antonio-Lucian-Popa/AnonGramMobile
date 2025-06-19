@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 
+import Input from "@/components/Input";
 import { colors } from "@/constants/Colors";
-import Input from "./input";
 
 interface TagSelectorProps {
   selectedTags: string[];

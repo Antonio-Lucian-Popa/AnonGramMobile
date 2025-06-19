@@ -23,8 +23,10 @@ function useProtectedRoute(isAuthenticated: boolean) {
     
     // Define protected routes that require authentication
     const protectedRoutes = ["create", "post"];
+    // Ensure segments is an array of strings
+    const segmentStrings = Array.isArray(segments) ? segments as string[] : [];
     const isProtectedRoute = protectedRoutes.some(route => 
-      segments.includes(route) || segments.some(segment => segment.startsWith(route + "/"))
+      segmentStrings.includes(route) || segmentStrings.some(segment => segment.startsWith(route + "/"))
     );
     
     if (
