@@ -1,6 +1,7 @@
+
 import Button from "@/components/Button";
 import Input from "@/components/Input";
-import { colors } from "@/constants/colors";
+import { colors } from "@/constants/Colors";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Lock, Mail } from "lucide-react-native";
@@ -107,7 +108,7 @@ export default function LoginScreen() {
           />
           
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Don't have an account?</Text>
+            <Text style={styles.footerText}>Don&apos;t have an account?</Text>
             <TouchableOpacity onPress={() => router.replace("/(auth)/register")}>
               <Text style={styles.footerLink}>Register</Text>
             </TouchableOpacity>
