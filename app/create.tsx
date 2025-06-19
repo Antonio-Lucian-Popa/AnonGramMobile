@@ -69,7 +69,10 @@ export default function CreatePostScreen() {
 
       console.log("Creating post with data:", postData);
 
-      formData.append("post", JSON.stringify(postData));
+      formData.append('post', new Blob(
+        [JSON.stringify(postData)],
+        { type: 'application/json' }
+      ));
 
       if (images.length > 0) {
         images.forEach(imageUri => {
