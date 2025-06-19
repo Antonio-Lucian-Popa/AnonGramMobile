@@ -1,4 +1,4 @@
-import { CreatePostData, PaginatedResponse, Post, PostFilters, VoteData } from "@/types";
+import { PaginatedResponse, Post, PostFilters, VoteData } from "@/types";
 import { api } from "@/utils/api";
 import { create } from "zustand";
 
@@ -18,7 +18,7 @@ interface PostsState {
   fetchPosts: (refresh?: boolean) => Promise<void>;
   fetchMorePosts: () => Promise<void>;
   fetchPostById: (id: string) => Promise<void>;
-  createPost: (data: CreatePostData, images?: FormData) => Promise<Post | null>;
+  createPost: (data: FormData) => Promise<Post | null>;
   deletePost: (id: string, userId: string) => Promise<void>;
   votePost: (data: VoteData) => Promise<void>;
   setFilters: (filters: Partial<PostFilters>) => void;
@@ -100,26 +100,11 @@ export const usePostsStore = create<PostsState>((set, get) => ({
     }
   },
 
-  createPost: async (data: CreatePostData, images?: FormData) => {
+  createPost: async (data: FormData) => {
     set({ isLoading: true, error: null });
     try {
-      const formData = new FormData();
-      
-      // Add post data
-      formData.append("post", JSON.stringify(data));
-      
-      // Add images if any
-      if (images) {
-        // Safely add images to formData
-        for (let i = 0; i < images.getAll("images").length; i++) {
-          const image = images.getAll("images")[i];
-          if (image) {
-            formData.append("images", image);
-          }
-        }
-      }
-
-      const newPost = await api.postFormData<Post>("/posts", formData);
+    
+      const newPost = await api.postFormData<Post>("/posts", data);
       
       // Update posts list with the new post
       set({ 

@@ -121,23 +121,60 @@ class ApiClient {
   }
 
   async postFormData<T>(
-    endpoint: string,
-    formData: FormData,
-    options: RequestInit = {}
+  endpoint: string,
+  formData: FormData,
+  options: RequestInit = {}
   ): Promise<T> {
-    return this.request<T>(
-      endpoint,
-      {
-        ...options,
-        method: "POST",
-        body: formData,
-        headers: {
-          ...options.headers, // content-type handled automatically
-        },
+  const url = `${this.baseUrl}${endpoint}`;
+
+  console.log("POST FormData URL:", url);
+  console.log("POST FormData Headers:", options.headers);
+  console.log("POST FormData Body:", formData);
+
+  const makeFetch = async () => {
+    const token = await AsyncStorage.getItem("access_token");
+    console.log("POST FormData Token:", token);
+
+    return await fetch(url, {
+      method: "POST",
+      body: formData,
+      headers: {
+        Authorization: token ? `Bearer ${token}` : "",
+        ...options.headers, // FĂRĂ Content-Type!!!
       },
-      "multipart/form-data"
-    );
+      
+    });
+  };
+
+  try {
+    let response = await makeFetch();
+
+    if (response.status === 401) {
+      try {
+        await this.refreshToken();
+        response = await makeFetch(); // Retry cu token nou
+      } catch (refreshError) {
+        await this.removeTokensAndRedirectToLogin();
+        throw new Error("Autentificare eșuată. Reautentifică-te.");
+      }
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Eroare API: ${response.status}`);
+    }
+
+    if (response.status === 204) {
+      return {} as T;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("FormData POST failed:", error);
+    throw error;
   }
+}
+
 }
 
 export const api = new ApiClient(API_URL);

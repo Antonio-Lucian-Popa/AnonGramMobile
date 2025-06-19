@@ -16,23 +16,23 @@ export default function CreatePostScreen() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
   const { createPost, isLoading } = usePostsStore();
-  
+
   const [text, setText] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [textError, setTextError] = useState("");
-  
+
   // Redirect to login if not authenticated
   React.useEffect(() => {
     if (!isAuthenticated) {
       router.replace("/(auth)/login");
     }
   }, [isAuthenticated]);
-  
+
   const validateForm = () => {
     let isValid = true;
-    
+
     // Validate text
     if (!text.trim()) {
       setTextError("Post text is required");
@@ -40,57 +40,62 @@ export default function CreatePostScreen() {
     } else {
       setTextError("");
     }
-    
+
     return isValid;
   };
-  
+
   const handleCreatePost = async () => {
     if (!user) {
       Alert.alert("Error", "You must be logged in to create a post");
       return;
     }
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     try {
+
+      // Prepare images if any
+      const formData = new FormData();
+
       // Prepare post data
       const postData = {
         userId: user.id,
         text,
-        tags,
+        tags: tags.map(tag => "#" + tag),
         ...(location && { latitude: location.latitude, longitude: location.longitude }),
       };
-      
-      // Prepare images if any
-      let formData: FormData | undefined = undefined;
+
+      console.log("Creating post with data:", postData);
+
+      formData.append("post", JSON.stringify(postData));
+
       if (images.length > 0) {
-        formData = new FormData();
         images.forEach(imageUri => {
           const filename = imageUri.split("/").pop() || "image.jpg";
           const match = /\.(\w+)$/.exec(filename);
           const type = match ? `image/${match[1]}` : "image/jpeg";
-          
+
           // @ts-ignore
-          formData?.append("images", {
+          formData.append("images", {
             uri: imageUri,
             name: filename,
             type,
           });
         });
       }
-      
+
       // Create post
-      const newPost = await createPost(postData, formData);
-      
+      const newPost = await createPost(formData);
+
       if (newPost) {
         Alert.alert(
           "Success",
           "Your post has been created successfully",
           [
-            { 
-              text: "OK", 
+            {
+              text: "OK",
               onPress: () => router.back(),
             },
           ]
@@ -101,16 +106,16 @@ export default function CreatePostScreen() {
       Alert.alert("Error", "Failed to create post. Please try again.");
     }
   };
-  
+
   const suggestedTags = [
-    "confession", "question", "advice", "funny", "serious", 
+    "confession", "question", "advice", "funny", "serious",
     "relationship", "work", "school", "family", "friends"
   ];
-  
+
   if (!isAuthenticated) {
     return null; // Will redirect in useEffect
   }
-  
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -121,7 +126,7 @@ export default function CreatePostScreen() {
         <View style={styles.content}>
           <Text style={styles.title}>Create Post</Text>
           <Text style={styles.subtitle}>Share your thoughts anonymously</Text>
-          
+
           <Input
             label="What's on your mind?"
             placeholder="Share your thoughts, questions, or confessions..."
@@ -133,24 +138,24 @@ export default function CreatePostScreen() {
             style={styles.textInput}
             error={textError}
           />
-          
+
           <ImagePickerComponent
             images={images}
             onImagesChange={setImages}
             maxImages={5}
           />
-          
+
           <TagSelector
             selectedTags={tags}
             onTagsChange={setTags}
             suggestedTags={suggestedTags}
           />
-          
+
           <LocationPicker
             location={location}
             onLocationChange={setLocation}
           />
-          
+
           <View style={styles.footer}>
             <Button
               title="Cancel"
